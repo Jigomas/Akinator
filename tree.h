@@ -3,15 +3,27 @@
 
 
 
+enum all_constsants{
+    LEN_OF_DATA = 30,
+    MAX_DEPTH = 5,
+};
+
+
+
 typedef int comparing_is_smaller_t(const int a, const int b);
 
-typedef int comaring_with_asking_t(struct tree_t *tree, int value);
+typedef int comaring_with_asking_t(struct tree_t *tree, char value[LEN_OF_DATA]);
+
+typedef int comaring_no_asking_t(struct tree_t *tree, int depth);
 
 struct tree_t
 {
-    int data;
+    char *data;
     tree_t *left;
     tree_t *right;
+
+    int depth;
+    int *history;
 
     int code_of_program;
 };
@@ -43,17 +55,19 @@ enum all_exit_codes {
 
 
 
-tree_t *TreeCtor(int value);
+tree_t *TreeCtor(int value, int depth, int history[MAX_DEPTH]);
 
 void TreeDtor(tree_t *tree);
 
-tree_t   *TreeAddNoAsking(tree_t *tree, int value, comparing_is_smaller_t *comparing_alg);
+tree_t *TreeAddWithAsking(tree_t *tree, char value[LEN_OF_DATA], comaring_with_asking_t *comparing_alg, int depth, int history[MAX_DEPTH]);
 
-tree_t *TreeAddWithAsking(tree_t *tree, int value, comaring_with_asking_t *comparing_alg);
+tree_t *TreeAddNoAsking(tree_t *tree, char value[LEN_OF_DATA], comaring_no_asking_t *comparing_alg, int depth, int history[MAX_DEPTH]);
+
+tree_t *TreeAsking(tree_t *tree, char ancestor[LEN_OF_DATA], comaring_with_asking_t *comparing_alg, int depth, int history[MAX_DEPTH]);
 
 tree_t *SearchInTheTree(tree_t *tree, int value);
 
-tree_t *TreePrint(tree_t *tree, int level, int **list_of_levels);
+tree_t *TreePrint(tree_t *tree);
 
 tree_t *TheBracketPrinting(tree_t *tree, int level);
 

@@ -14,8 +14,8 @@
 
 int LeftIsSmaller(int first_number, int second_number);
 
-int YesOrNo(tree_t *tree, int value);
+int YesOrNo(tree_t *tree, char value[LEN_OF_DATA]);
 
-
+int DecidingOnHistory(tree_t *tree, int depth);
 
 #endif //DECIDING_ALG

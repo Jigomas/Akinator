@@ -8,26 +8,15 @@
 
 int main(int argc, char* argv[]) {
     tree_t *tree = NULL;
+    int history[5] = {0, 0, 0, 0, 0};
 
-    //tree = TreeAddNoAsking(tree, 5, LeftIsSmaller); //where to add, what to add, function of choosing how to add
-    //tree = TreeAddNoAsking(tree, 3, LeftIsSmaller);
-    //tree = TreeAddNoAsking(tree, 6, LeftIsSmaller);
-    //tree = TreeAddNoAsking(tree, 1, LeftIsSmaller);
-    tree = TreeAddWithAsking(tree, 5, YesOrNo);
-    tree = TreeAddWithAsking(tree, 3, YesOrNo);
-    tree = TreeAddWithAsking(tree, 6, YesOrNo);
-    tree = TreeAddWithAsking(tree, 7, YesOrNo);
-    tree = TreeAddWithAsking(tree, 9, YesOrNo);
-/*
-    int max_depth = 10;
+    tree = TreeAddWithAsking(tree, "of yours smaller than 15 cm", YesOrNo, 0, history) ;
+    tree = TreeAddWithAsking(tree, "it is hui", YesOrNo, 0, history);
+    tree = TreeAddWithAsking(tree, "it is leg", YesOrNo, 0, history);
+    tree = TreeAddNoAsking(tree, "it is arm", DecidingOnHistory, 0, history);
 
-    int *list_of_levels = ListOfLevelsCtor(max_depth);
+    //tree = TreeAsking(tree, "", YesOrNo, 0, history);
 
-    TreePrint(tree, 0, &list_of_levels); //what to print, and where to start
-
-    for (int i = 0; i < max_depth; i++)
-        printf("%d\n", list_of_levels[i]);
-    printf("***************\n");
-*/
+    TreePrint(tree); //what to print
     TreeDtor(tree);
 }

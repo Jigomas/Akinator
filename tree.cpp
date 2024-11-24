@@ -6,12 +6,21 @@
 #include "verificator.h"
 
 
-tree_t *TreeCtor(int value) {
+tree_t *TreeCtor(char value[LEN_OF_DATA], int depth, int history[MAX_DEPTH]) {
     tree_t *tree = (tree_t *)calloc(1, sizeof(tree_t));
 
-    tree->data   = value;
+    tree->data   = (char *)calloc(1, LEN_OF_DATA);
+    for (int i = 0; i < LEN_OF_DATA; i++)
+        tree->data[i] = value[i];
+
     tree->left   = NULL;
     tree->right  = NULL;
+
+    tree->depth   = depth;
+
+    tree->history = (int *)calloc(1, MAX_DEPTH);
+    for (int i = 0; i < MAX_DEPTH; i++)
+        tree->history[i] = history[i];
 
     tree->code_of_program = ALL_GOOD;
     return tree;
@@ -29,7 +38,7 @@ void TreeDtor(tree_t *tree) {
 }
 
 
-
+/*
 tree_t *TreeAddNoAsking(tree_t *tree, int value, comparing_is_smaller_t *comparing_alg) {
     if (!tree)
         return TreeCtor(value);
@@ -50,22 +59,28 @@ tree_t *TreeAddNoAsking(tree_t *tree, int value, comparing_is_smaller_t *compari
 
     return tree;
 }
+*/
 
-tree_t *TreeAddWithAsking(tree_t *tree, int value, comaring_with_asking_t *comparing_alg) {
+
+
+tree_t *TreeAddNoAsking(tree_t *tree, char value[LEN_OF_DATA], comaring_no_asking_t *comparing_alg, int depth, int history[MAX_DEPTH]) {
     if (!tree)
-        return TreeCtor(value);
+        return TreeCtor(value, depth, history);
 
     Verificator(tree);
 
     int result_of_comparement = ERROR;
 
-    result_of_comparement = comparing_alg(tree, value);
+    result_of_comparement = comparing_alg(tree, depth);
 
-    if (result_of_comparement == LEFT)
-        tree->left  = TreeAddWithAsking(tree->left, value, comparing_alg);
+    if (result_of_comparement == LEFT) {
+        TreeAddNoAsking(tree->left, value, comparing_alg, depth + 1, history);
+    }
 
-    else if (result_of_comparement == RIGHT)
-        tree->right = TreeAddWithAsking(tree->right, value, comparing_alg);
+    else if (result_of_comparement == RIGHT) {
+        printf("234\n");
+        tree->right = TreeAddNoAsking(tree->right, value, comparing_alg, depth + 1, history);
+    }
 
     else tree->code_of_program = ERROR;
 
@@ -73,27 +88,105 @@ tree_t *TreeAddWithAsking(tree_t *tree, int value, comaring_with_asking_t *compa
 }
 
 
-tree_t *TreePrint(tree_t *tree, int level, int **list_of_levels) {
+
+tree_t *TreeAddWithAsking(tree_t *tree, char value[LEN_OF_DATA], comaring_with_asking_t *comparing_alg, int depth, int history[MAX_DEPTH]) {
+    if (!tree)
+        return TreeCtor(value, depth, history);
+
+    Verificator(tree);
+
+    int result_of_comparement = ERROR;
+
+    result_of_comparement = comparing_alg(tree, value);
+
+    if (result_of_comparement == LEFT) {
+        history[depth] = 1;
+        tree->left  = TreeAddWithAsking(tree->left, value, comparing_alg, depth + 1, history);
+    }
+
+    else if (result_of_comparement == RIGHT) {
+        history[depth] = 0;
+        tree->right = TreeAddWithAsking(tree->right, value, comparing_alg, depth + 1, history);
+    }
+
+    else tree->code_of_program = ERROR;
+
+    return tree;
+}
+
+
+
+tree_t *TreeAsking(tree_t *tree, char ancestor[LEN_OF_DATA], comaring_with_asking_t *comparing_alg, int depth, int history[MAX_DEPTH]) {
+    if (!tree) {
+        if (ancestor[0] != 'I' && ancestor[1] != 'T')
+            printf("%s\n", ancestor);
+
+        else {
+            printf("%s\n", "IM STUPID");
+
+            fprintf(stderr, "Please print What is IT\n");
+
+            int read_sth   = 0;
+            char  value[LEN_OF_DATA] = {};
+
+            read_sth = scanf("%s", value);
+            return TreeCtor(value, depth, history);
+
+        }
+        return tree;
+    }
+
+    Verificator(tree);
+
+    int result_of_comparement = ERROR;
+
+    char value[LEN_OF_DATA] = "IT";
+
+    result_of_comparement = comparing_alg(tree, value);
+
+    if (result_of_comparement == LEFT) {
+        history[depth] = 1;
+        tree->left = TreeAsking(tree->left, tree->data, comparing_alg, depth + 1, history);
+    }
+
+    else if (result_of_comparement == RIGHT) {
+        history[depth] = 0;
+        tree->right = TreeAsking(tree->right, value, comparing_alg, depth + 1, history);
+    }
+
+    else {
+        tree->code_of_program = ERROR;
+        printf("%s\n", "FUCK YOU!");
+    }
+
+    return tree;
+}
+
+
+
+
+
+
+
+tree_t *TreePrint(tree_t *tree) {
 
     if (!tree)
         return tree;
 
-    if (!list_of_levels) {
-        assert(0);
-        return 0;
-    }
-
     Verificator(tree);
     //todo fixit
-    //*(list_of_levels[level]) ++;
+    //*(list_of_levels[tree->depth]) ++;
 
 
-    printf("tree[%p] %*stree.data = %d tree.left[%p] tree.right[%p]\n",
-                 tree, 9 * level, "", tree->data, tree->left, tree->right);
+    printf("tree[%p] %*stree.data = %s tree.left[%p] tree.right[%p]",
+                 tree, 9 * tree->depth, "", tree->data, tree->left, tree->right);
 
+    for (int i = 0; i < MAX_DEPTH; i++)
+        printf("%d", tree->history[i]);
+    printf("\n");
 
-    TreePrint(tree->left,  level + 1, list_of_levels);
-    TreePrint(tree->right, level + 1, list_of_levels);
+    TreePrint(tree->left);
+    TreePrint(tree->right);
 
     return tree;
 }
@@ -109,17 +202,17 @@ tree_t *TheBracketPrinting(tree_t *tree, int order) {
     printf("( ");
 
     if (order == PRE_ORDER)
-        printf("%d ", tree->data);
+        printf("%s ", tree->data);
 
     TheBracketPrinting(tree->left, order);
 
     if (order == IN_ORDER)
-        printf("%d ", tree->data);
+        printf("%s ", tree->data);
 
     TheBracketPrinting(tree->right, order);
 
     if (order == POST_ORDER)
-        printf("%d ", tree->data);
+        printf("%s ", tree->data);
 
     printf(") ");
 
@@ -128,7 +221,7 @@ tree_t *TheBracketPrinting(tree_t *tree, int order) {
 
 
 
-tree_t *SearchInTheTree(tree_t *tree, int value) {
+tree_t *SearchInTheTree(tree_t *tree, char value[LEN_OF_DATA]) {
     if (!tree)
         return NULL;
 
@@ -151,7 +244,7 @@ tree_t *SearchInTheTree(tree_t *tree, int value) {
 }
 
 
-
+/*
 int *ListOfLevelsCtor(int max_depth) {
     int *list_of_levels = (int *)calloc(max_depth, sizeof(int));
 
@@ -160,7 +253,7 @@ int *ListOfLevelsCtor(int max_depth) {
 
     return list_of_levels;
 }
-
+*/
 
 
 

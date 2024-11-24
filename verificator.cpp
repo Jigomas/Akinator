@@ -25,5 +25,7 @@ void Verificator (struct tree_t *tree) {
         return;
     }
 
+    
+
     tree->code_of_program = ALL_GOOD;
 }

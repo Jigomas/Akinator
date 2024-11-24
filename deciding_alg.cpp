@@ -7,15 +7,12 @@ int LeftIsSmaller(int first_number, int second_number) {
 }
 
 
-int YesOrNo(tree_t *tree, int value) {
-    fprintf(stderr, "Is the number %d is smaller shan %d\n", value, tree->data);
+int YesOrNo(tree_t *tree, char value[LEN_OF_DATA]) {
+    fprintf(stderr, "%s %s\n", value, tree->data);
     fprintf(stderr, "Please print Yes or No\n");
 
     int read_sth   = 0;
     char  answer[3] = {};
-    char yes_ans[3] = {'Y', 'e', 's'};
-    char  no_ans[2] = {'N', 'o'};
-
 
     read_sth = scanf("%s", answer);
 
@@ -31,6 +28,23 @@ int YesOrNo(tree_t *tree, int value) {
     }
 
     fprintf(stderr, "Cant understand your answer %d %d\n", answer[0], answer[1]);
+
+    return ERROR_COMPAREMENT;
+}
+
+
+int DecidingOnHistory(tree_t *tree, int depth) {
+
+
+    if (tree->history[depth] == 1) {
+        return LEFT;
+    }
+
+    else if (tree->history[depth] == 0) {
+        return RIGHT;
+    }
+
+    fprintf(stderr, "Cant make comparement");
 
     return ERROR_COMPAREMENT;
 }
